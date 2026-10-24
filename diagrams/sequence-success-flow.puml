@@ -1,0 +1,25 @@
+@startuml
+title Saga de compra — fluxo de sucesso
+autonumber
+actor Cliente
+participant "Order Service" as Order
+participant "Saga Orchestrator" as Saga
+queue "Message Broker" as Broker
+participant "Inventory Service" as Inventory
+participant "Payment Service" as Payment
+
+Cliente -> Order: Solicitar compra
+Order -> Order: Criar pedido (PENDING)
+Order -> Saga: Iniciar Saga(orderId)
+Saga -> Broker: ReserveStock(orderId, items)
+Broker -> Inventory: ReserveStock
+Inventory --> Broker: StockReserved
+Broker --> Saga: StockReserved
+Saga -> Broker: AuthorizePayment(orderId, amount)
+Broker -> Payment: AuthorizePayment
+Payment --> Broker: PaymentAuthorized
+Broker --> Saga: PaymentAuthorized
+Saga -> Order: ConfirmOrder(orderId)
+Order --> Saga: OrderConfirmed
+Saga -> Saga: Marcar Saga como COMPLETED
+@enduml
