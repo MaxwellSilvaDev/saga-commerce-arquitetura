@@ -1,0 +1,21 @@
+digraph SagaArchitecture {
+  graph [rankdir=LR, bgcolor="white", pad="0.25", nodesep="0.45", ranksep="0.65", label="Arquitetura Saga — e-commerce", labelloc=t, fontsize=20, fontname="Arial"];
+  node [shape=box, style="rounded,filled", fillcolor="#eef4ff", color="#486581", fontname="Arial", fontsize=11, margin="0.16,0.10"];
+  edge [color="#526d82", fontname="Arial", fontsize=9, arrowsize=0.8];
+  customer [label="Cliente", shape=oval, fillcolor="#fff4d6"];
+  order [label="Order Service\nPedidos"];
+  saga [label="Saga Orchestrator\nEstado / timeout / compensação", fillcolor="#d9ead3"];
+  broker [label="Message Broker\nRetries / DLQ", shape=component, fillcolor="#fce5cd"];
+  inventory [label="Inventory Service\nReservar / liberar estoque"];
+  payment [label="Payment Service\nAutorizar / recusar pagamento"];
+  db [label="Saga State Store\nEstado persistido", shape=cylinder, fillcolor="#eadcf8"];
+  customer -> order [label="Criar pedido"];
+  order -> saga [label="Iniciar Saga"];
+  saga -> broker [label="Comandos / eventos"];
+  broker -> inventory [label="Reserva / liberação"];
+  broker -> payment [label="Autorização"];
+  broker -> order [label="Cancelar / confirmar"];
+  saga -> db [dir=both, label="Persistir progresso"];
+  inventory -> broker [label="Resultado"];
+  payment -> broker [label="Resultado"];
+}
